@@ -29,9 +29,9 @@
     input,
     select,
     textarea {
-        @apply w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-md
-            focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400
-            transition-all duration-200 text-sm placeholder:text-slate-400;
+        @apply w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:shadow-lg focus:shadow-indigo-500/10
+            transition-all duration-200 text-sm placeholder:text-slate-500 shadow-sm;
     }
 
     /* Table styles */
@@ -73,7 +73,7 @@
         @apply mb-8;
     }
     .page-title {
-        @apply text-2xl font-medium text-slate-900 tracking-tight;
+        @apply text-2xl font-medium tracking-tight;
     }
     .page-subtitle {
         @apply text-slate-500 text-sm mt-1;
