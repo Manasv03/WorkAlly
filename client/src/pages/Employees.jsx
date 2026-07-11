@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { dummyEmployeeData, DEPARTMENTS } from "../assets/assets"
-import { Plus, Search, X } from "lucide-react"
+import { Plus, Search } from "lucide-react"
 import EmployeeCard from "../components/EmployeeCard"
-import EmployeeForm from "../components/EmployeeForm"
 
 const Employees = () => {
 
@@ -20,11 +19,11 @@ const Employees = () => {
     setTimeout(()=>{
       setLoading(false)
     },1000)
-  },[selectedDept])
+  },[])
 
   useEffect(()=>{
     fetchEmployees();
-  },[fetchEmployees])
+  },[])
 
   const filtered = employees.filter((emp)=>`${emp.firstName} ${emp.lastName} ${emp.position}` .toLowerCase().includes(search.toLowerCase()))
 
@@ -41,7 +40,7 @@ const Employees = () => {
           </p>
         </div>
 
-        <button onClick={()=>setShowCreateModal(true)} className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center">
+        <button className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center">
           <Plus size={16}/> Add Employee
         </button>
       </div>
@@ -76,54 +75,6 @@ const Employees = () => {
           ) : (
             filtered.map((emp)=><EmployeeCard key={emp.id} employee={emp} onDelete={fetchEmployees} onEdit={(e)=>setEditEmployee(e)}/>)
           )}
-        </div>
-      )}
-
-      {/* Create employee model */}
-
-      {showCreateModal && (
-        <div className="fixed bg-black/40 backdrop-blur-sm inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto" onClick={()=>setShowCreateModal(false)}>
-          <div className="fixed inset-0"/>
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl my-8 animate-fade-in" onClick={(e)=>e.stopPropagation()}>
-            <div className="flex itmes-center justify-between p-6 pb-0">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900">Add New Employee</h2>
-                <p className="text-sm text-slate-500 mt-0.5">Create a user account and employee profile</p>
-              </div>
-              <button onClick={()=>setShowCreateModal(false)} className="p-2 rounded hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-400">
-                <X className="w-5 h-5"/>
-              </button>
-            </div>
-            <div className="p-6 text-black/40">
-              <EmployeeForm onSuccess={()=>{
-                setShowCreateModal(false);
-                fetchEmployees();
-              }} onCancel={()=>setShowCreateModal(false)}/>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit employee model */}
-      {editEmployee && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto bg-black/40 backdrop-blur-sm" onClick={()=>setEditEmployee(null)}>
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl my-8 animate-fade-in" onClick={(e)=>e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 pb-0">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900">Edit Employee</h2>
-                <p className="text-sm text-slate-500 mt-0.5">Edit Employee Details</p>
-              </div>
-              <button onClick={()=>setEditEmployee(null)} className="p-2 rounded hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-400">
-                <X className="w-5 h-5"/>
-              </button>
-            </div>
-            <div className="p-6 text-black/40">
-              <EmployeeForm initialData={editEmployee} onSuccess={()=>{
-                setEditEmployee(null);
-                fetchEmployees();
-              }} onCancel={()=>setEditEmployee(null)}/>
-            </div>
-          </div>
         </div>
       )}
 
