@@ -1,0 +1,108 @@
+import Employee from "../models/Employee.js";
+import LeaveApplication from "../models/LeaveApplication.js";
+
+// Create Leave
+
+
+// POST /api/leave
+export const createLeave = async (req,res) => {
+    try {
+        const session = req.session;
+        const employee = await Employee.findOne({userId: session.userId})
+
+        if(!employee) return res.status(404).json({error: "Enployee Not Found"});
+
+        if(employee.isDeleted){
+            return res.status(403).json({
+                error: "Your account is deactivated"
+            })
+        }
+
+        const { type, startDate, endDate, reason } = req.body;
+
+        if(!type || !startDate || !endDate || !reason){
+            return res.status(400).json({erros: "Missing fields"});
+        }
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        if(new Date(startDate) <= today || new Date(endDate) <= today){
+            return res.status(400).json({error: "Leave dates must be in the future"});
+        }
+
+        if(new Date(endtDate) < new Date(startDate)){
+            return res.status(400).json({error: "Leave dates cannot be before start date"});
+        }
+
+        const leave = await LeaveApplication.create({
+            employeeId: employee._id,
+            type,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            reason,
+            status: "PENDING",
+        })
+
+        return res.json({success: true, data: leave})
+
+    } catch (error) {
+        return res.status(500).json({erros: "Failed"})
+    }
+}
+
+// Get Leave
+// GET /api/leave
+export const getLeaves = async (req,res) => {
+    try {
+        const session = req.session;
+        const isAdmin = session.role === "ADMIN"
+
+        if(isAdmin){
+            const status = req.query.status;
+            const where = status ? {status} : {};
+            const leave = await LeaveApplication.find(where).populate("employeeId").sort({createdAt: -1});
+            const data = leave.map((l)=>{
+                const obj = l.toObject();
+                return {
+                    ...obj,
+                    id: obj._id.toString(),
+                    employee: obj.employeeId,
+                    employeeId: obj.employeeId?._id?.toString(),
+                }
+            })
+            return res.json({data})
+        } else {
+            const employee = await Employee.findOne({
+                userId: session.userId,
+            }).lean();
+            if(!employee) return res.status(404).json({erros: "Not found"});
+            const leaves = await LeaveApplication.find({
+                employeeId: employee._id
+            }).sort({createdAt: -1});
+            return res.json({
+                data: leaves,
+                employee: {...employee, id: employee._id.toString()}
+            })
+        }
+    
+    } catch (error) {
+        return res.status(500).json({erros: "Failed"})
+    }
+}
+
+// Update Leave Status
+// PATCH /api/leave/:id
+export const updateLeaveStatus = async (req,res) => {
+    try {
+        const { status } = req.body;
+        if(!["APPROVED", "REJECTED", "PENDING"].includes(status)){
+            return res.status(400).json({error: "Invalid Status"});
+        }
+        const leave = await LeaveApplication.findByIdAndUpdate(req.params.id, {status}, {returnDocument: "after"})
+
+        return res.json({success: true, data: leave})
+    } catch (error) {
+        return res.status(500).json({erros: "Failed"})
+
+    }
+}
